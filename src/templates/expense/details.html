@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Expense Details</h2>
+        <a href="{{ url_for('view_group_expenses', group_id=expense.group_id) }}" class="btn btn-secondary">Back to Expenses</a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="card-title">{{ expense.description }}</h5>
+                    <p class="card-text"><strong>Amount:</strong> ${{ expense.amount }}</p>
+                    <p class="card-text"><strong>Paid By:</strong> {{ expense.paid_by.name }}</p>
+                    <p class="card-text"><strong>Date:</strong> {{ expense.timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+                    {% if expense.tag %}
+                    <p class="card-text"><strong>Tag:</strong> {{ expense.tag }}</p>
+                    {% endif %}
+                    <p class="card-text"><strong>Group:</strong> {{ group.name }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Participants</h5>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Amount Owed</th>
+                            <th>Status</th>
+                            {% if current_user.user_id == expense.paid_by.user_id %}
+                            <th>Actions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for participant in participants %}
+                        <tr>
+                            <td>{{ participant.user.name }}</td>
+                            <td>${{ participant.amount }}</td>
+                            <td>
+                                {% if participant.settled == 'SETTLED' %}
+                                <span class="badge badge-success">Settled</span>
+                                {% elif participant.settled == 'PARTIAL' %}
+                                <span class="badge badge-warning">Partially Settled</span>
+                                {% else %}
+                                <span class="badge badge-danger">Not Settled</span>
+                                {% endif %}
+                            </td>
+                            {% if current_user.user_id == expense.paid_by.user_id and participant.user.user_id != expense.paid_by.user_id %}
+                            <td>
+                                {% if participant.settled != 'SETTLED' %}
+                                <a href="{{ url_for('mark_as_settled', expense_id=expense.expense_id, user_id=participant.user.user_id) }}" 
+                                   class="btn btn-success btn-sm"
+                                   onclick="return confirm('Mark as settled?')">
+                                    Mark as Settled
+                                </a>
+                                {% endif %}
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>{{ group.name }}</h2>
+        <a href="{{ url_for('view_groups') }}" class="btn btn-secondary">Back to Groups</a>
+    </div>
+
+    {% if is_admin %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Group Settings</h5>
+            <form method="POST" action="{{ url_for('update_group', group_id=group.group_id) }}">
+                <div class="form-group">
+                    <label for="name">Group Name</label>
+                    <input type="text" class="form-control" id="name" name="name" value="{{ group.name }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3">{{ group.description }}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Update Group</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Add Member</h5>
+            <form method="POST" action="{{ url_for('add_member_to_group', group_id=group.group_id) }}">
+                <div class="form-group">
+                    <label for="email">Member Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <button type="submit" class="btn btn-success">Add Member</button>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Group Members</h5>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            {% if is_admin %}
+                            <th>Actions</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in group.members %}
+                        <tr>
+                            <td>{{ member.name }}</td>
+                            <td>{{ member.email }}</td>
+                            <td>
+                                {% if member.user_id == group.admin.user_id %}
+                                <span class="badge badge-primary">Admin</span>
+                                {% else %}
+                                <span class="badge badge-secondary">Member</span>
+                                {% endif %}
+                            </td>
+                            {% if is_admin and member.user_id != group.admin.user_id %}
+                            <td>
+                                <a href="{{ url_for('remove_member_from_group', group_id=group.group_id, user_id=member.user_id) }}" 
+                                   class="btn btn-danger btn-sm"
+                                   onclick="return confirm('Are you sure you want to remove this member?')">
+                                    Remove
+                                </a>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

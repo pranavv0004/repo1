@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Bill Sharing App{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Welcome Section -->
+        <div class="col-12 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">Welcome, {{ user.name }}!</h4>
+                    <p class="card-text">Here's an overview of your groups and expenses.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Groups Section -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">Your Groups</h5>
+                        <a href="{{ url_for('create_group') }}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus mr-1"></i>New Group
+                        </a>
+                    </div>
+                    {% if groups %}
+                        <div class="list-group">
+                            {% for group in groups %}
+                            <a href="{{ url_for('view_group_expenses', group_id=group.group_id) }}" 
+                               class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ group.name }}</h6>
+                                    <small>{{ group.members|length }} members</small>
+                                </div>
+                                <p class="mb-1">{{ group.description or 'No description' }}</p>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info mb-0">
+                            You haven't joined any groups yet. Create a new group to get started!
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Dues Section -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Your Dues</h5>
+                    {% if dues %}
+                        <div class="list-group">
+                            {% for due in dues %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ due.description }}</h6>
+                                    <small class="text-muted">{{ due.group_name }}</small>
+                                </div>
+                                <p class="mb-1">Amount: ${{ due.owed_amount }}</p>
+                                <small class="text-muted">Paid by: {{ due.paid_by }}</small>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-success mb-0">
+                            You're all caught up! No pending dues.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Recent Activity</h5>
+                    {% if recent_activity %}
+                        <div class="list-group">
+                            {% for activity in recent_activity %}
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ activity.description }}</h6>
+                                    <small class="text-muted">{{ activity.timestamp.strftime('%Y-%m-%d %H:%M') }}</small>
+                                </div>
+                                <p class="mb-1">{{ activity.group_name }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info mb-0">
+                            No recent activity to show.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
